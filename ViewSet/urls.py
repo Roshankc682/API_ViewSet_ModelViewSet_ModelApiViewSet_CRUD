@@ -6,7 +6,7 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 
 #Register BookViewSet with Router
-router.register('book_products_api', views.BookViewSet,basename='Books')
+router.register('_book_products_api', views.BookViewSet,basename='Books')
 
 urlpatterns = [
     path('',include(router.urls)),

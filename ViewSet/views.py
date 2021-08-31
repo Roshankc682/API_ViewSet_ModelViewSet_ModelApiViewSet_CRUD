@@ -6,12 +6,42 @@ from ViewSet.serializers import BookSerializer
 from rest_framework import status
 from rest_framework import viewsets
 
+# from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated , AllowAny
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.throttling import UserRateThrottle
+
+from rest_framework.pagination import PageNumberPagination
+
 class BookViewSet(viewsets.ViewSet):
+
     def list(self,request):
         book = Book.objects.all()
-        serializer = BookSerializer(book,many=True)
-        return Response(serializer.data)
+
+        # serializer = BookSerializer(book,many=True)
+        # return Response(serializer.data)
+
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(book, request)
+
+        if page is not None:
+            serializer = BookSerializer(page, many=True)
+            return paginator.get_paginated_response(serializer.data)
+        else:
+            serializer = BookSerializer(book, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        # permission_classes = [BasicAuthentication]
+    # permission_classes=[IsAuthenticated]
+    def get_permissions(self):
+        if self.action == 'retrieve': 
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes=[AllowAny]
+            # permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
     
+
     def retrieve(self,request,pk=None):
         id = pk
         if id is not None:
@@ -49,3 +79,4 @@ class BookViewSet(viewsets.ViewSet):
         book = Book.objects.get(pk=id)
         book.delete()
         return Response({'message':'Data deleted'})
+    
