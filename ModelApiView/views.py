@@ -11,15 +11,21 @@ from rest_framework.generics import (
                                      RetrieveDestroyAPIView , 
                                      RetrieveUpdateDestroyAPIView
                                      )
+from rest_framework.pagination import PageNumberPagination
+
+class MyPagin(PageNumberPagination):
+    page_size = 3
+    page_query_param = "load_data"
 
 class BookList(ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+    pagination_class = MyPagin
 
     # use this to authenticate for one class but this is tedious 
     # so import it in settings 
-    # authentication_classes=[BasicAuthentication]
-    # permission_classes=[IsAuthenticated]
+    authentication_classes=[BasicAuthentication]
+    permission_classes=[IsAuthenticated]
     # or for any user to allow
     # permission_classes=[AllowAny]
 
